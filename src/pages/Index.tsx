@@ -7,6 +7,7 @@ import StatRow from "@/components/gbase/StatRow";
 import FAQSection from "@/components/gbase/FAQSection";
 import LearnAboutBase from "@/components/gbase/LearnAboutBase";
 import BottomNav from "@/components/gbase/BottomNav";
+import { useFarcasterUser } from "@/hooks/useFarcasterUser";
 
 // Helper to calculate wallet strength
 const getWalletStrength = (transactions: number, activeDays: number): string => {
@@ -19,6 +20,7 @@ const getWalletStrength = (transactions: number, activeDays: number): string => 
 };
 
 const Index = () => {
+  const { isLoaded, user, composeCast } = useFarcasterUser();
   const [activeTab, setActiveTab] = useState<"home" | "stats">("home");
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [nextEligibleTime, setNextEligibleTime] = useState<Date | null>(null);
@@ -47,6 +49,11 @@ const Index = () => {
     // Show share popup
     setShowSharePopup(true);
   }, []);
+
+  const handleShareToFarcaster = useCallback((caption: string) => {
+    composeCast(caption, ["https://gbase-xi.vercel.app"]);
+    setShowSharePopup(false);
+  }, [composeCast]);
 
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString("en-US", {
@@ -130,6 +137,7 @@ const Index = () => {
         isOpen={showSharePopup}
         onClose={() => setShowSharePopup(false)}
         transactionCount={stats.transactions}
+        onShareToFarcaster={handleShareToFarcaster}
       />
     </div>
   );
