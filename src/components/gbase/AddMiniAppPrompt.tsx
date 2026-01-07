@@ -1,3 +1,4 @@
+
 import { Bell } from "lucide-react";
 
 interface AddMiniAppPromptProps {
