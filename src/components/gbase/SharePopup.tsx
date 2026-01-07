@@ -5,7 +5,6 @@ interface SharePopupProps {
   isOpen: boolean;
   onClose: () => void;
   transactionCount: number;
-  onShareToFarcaster?: (message: string) => void;
 }
 
 const shareMessages = [
@@ -16,7 +15,7 @@ const shareMessages = [
   (count: number) => `Pulse sent 🟦\nJust gBase'd on Base.\n${count.toLocaleString()} transactions recorded.`,
 ];
 
-const SharePopup = ({ isOpen, onClose, transactionCount, onShareToFarcaster }: SharePopupProps) => {
+const SharePopup = ({ isOpen, onClose, transactionCount }: SharePopupProps) => {
   const message = useMemo(() => {
     const randomIndex = Math.floor(Math.random() * shareMessages.length);
     return shareMessages[randomIndex](transactionCount);
@@ -25,14 +24,10 @@ const SharePopup = ({ isOpen, onClose, transactionCount, onShareToFarcaster }: S
   if (!isOpen) return null;
 
   const handleShare = () => {
-    if (onShareToFarcaster) {
-      onShareToFarcaster(message);
-    } else {
-      // Fallback to URL-based sharing
-      const encodedMessage = encodeURIComponent(message);
-      window.open(`https://warpcast.com/~/compose?text=${encodedMessage}`, "_blank");
-      onClose();
-    }
+    // Encode message for Farcaster
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://warpcast.com/~/compose?text=${encodedMessage}`, "_blank");
+    onClose();
   };
 
   return (
