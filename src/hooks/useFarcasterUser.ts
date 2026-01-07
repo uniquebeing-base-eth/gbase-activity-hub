@@ -16,37 +16,21 @@ export function useFarcasterUser() {
 
   const init = useCallback(async () => {
     try {
-      // Check if we're in a Farcaster context with a timeout
-      const contextPromise = sdk.context;
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Context timeout")), 3000)
-      );
+      // Get the context from Farcaster
+      const ctx = await sdk.context;
+      setContext(ctx);
 
-      try {
-        const ctx = await Promise.race([contextPromise, timeoutPromise]) as unknown;
-        setContext(ctx);
-
-        if (ctx && typeof ctx === 'object' && 'user' in ctx) {
-          const ctxWithUser = ctx as { user: { fid: number; username?: string; displayName?: string; pfpUrl?: string } };
-          setUser({
-            fid: ctxWithUser.user.fid,
-            username: ctxWithUser.user.username,
-            displayName: ctxWithUser.user.displayName,
-            pfpUrl: ctxWithUser.user.pfpUrl,
-          });
-        }
-      } catch {
-        // Not in Farcaster context, proceed without user
-        console.log("Not in Farcaster context or timeout");
+      if (ctx?.user) {
+        setUser({
+          fid: ctx.user.fid,
+          username: ctx.user.username,
+          displayName: ctx.user.displayName,
+          pfpUrl: ctx.user.pfpUrl,
+        });
       }
 
       // Signal that the app is ready to display
-      try {
-        await sdk.actions.ready();
-      } catch {
-        // Ignore ready errors outside Farcaster
-      }
-      
+      await sdk.actions.ready();
       setIsLoaded(true);
     } catch (err) {
       console.error("Failed to initialize Farcaster SDK:", err);
