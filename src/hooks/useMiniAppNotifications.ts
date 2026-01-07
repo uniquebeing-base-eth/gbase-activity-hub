@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import { supabase } from "@/integrations/supabase/client";
