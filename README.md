@@ -1,73 +1,121 @@
-# Welcome to your Lovable project
+# Welcome to gBase 
 
-## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Tap. Send. Active.
 
-## How can I edit this code?
+gBase is a simple Base-native app that helps users stay visibly active onchain by sending real transactions and tracking honest wallet activity over time.
 
-There are several ways of editing your application.
+No automation.
+No gimmicks.
+Just real Base usage.
 
-**Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
 
-Changes made via Lovable will be committed automatically to this repo.
+# Overview
 
-**Use your preferred IDE**
+gBase allows users to manually send a small gBase transaction and record that activity in a clean, verifiable way.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Each transaction is:
+	•	User initiated
+	•	User confirmed
+	•	Paid for by the user
+	•	Recorded transparently
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The result is a wallet that stays active and a clear activity record that can be shared on Farcaster.
 
-Follow these steps:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Why gBase
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Onchain activity matters.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Protocols, ecosystems, and communities value wallets that show real usage over time. gBase makes it easy to build that history intentionally, without speculation or promises.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+gBase does not guarantee:
+	•	Airdrops
+	•	Rewards
+	•	Financial returns
 
-**Edit a file directly in GitHub**
+It helps users stay present and verifiable on Base.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
+# How It Works
+	1.	Connect your wallet
+	2.	Tap Send gBase
+	3.	Confirm the transaction on Base
+	4.	Transaction is recorded
+	5.	Stats update instantly
+	6.	Share activity to Farcaster
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Only one gBase transaction per hour is tracked inside the app.
 
-## What technologies are used for this project?
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Features
 
-## How can I deploy this project?
+Activity Page
+	•	Large Send gBase button
+	•	Total Base Transactions counter
+	•	Countdown timer for next eligible hour
+	•	Minimal, distraction-free UI
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Stats Page
+	•	Base Transactions
+	•	Active Days
+	•	Wallet Strength (New, Warming, Active, Strong, Very Strong)
+	•	First Activity Date
+	•	Last Activity Time
 
-## Can I connect a custom domain to my Lovable project?
+Activity tracking starts from the first time a user uses gBase. Past Base transactions are not counted.
 
-Yes, you can!
+Sharing
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+After every confirmed transaction, users can share their activity to Farcaster with captions like:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+I just sent gBase on Base.
+This wallet stays active.
+I’ve sent 1,000 transactions so far on Base.
+
+
+
+Design Principles
+	•	Manual transactions only
+	•	User pays gas
+	•	No automation or background activity
+	•	No streaks or multipliers
+	•	One transaction per hour tracked
+	•	Honest, verifiable metrics
+
+gBase prioritizes credibility over gamification.
+
+
+
+# Learn About Base
+
+The app includes educational resources and links to help users understand Base, including:
+	•	Base network overview
+	•	Base documentation
+	•	Wallet and onboarding resources
+
+
+
+Tech Stack (Example)
+	•	Base network
+	•	EVM wallets
+	•	Farcaster integration
+	•	Frontend: React or Next.js
+	•	Wallet tooling: wagmi or equivalent
+
+Adjust based on implementation.
+
+
+Disclaimer
+
+gBase is a utility tool for tracking and sharing onchain activity.
+
+It does not provide financial advice, incentives, or guarantees.
+
+
+Status
+
+gBase is under active development.
+Feedback, issues, and contributions are welcome.
