@@ -1,3 +1,4 @@
+
 -- Create table for user activity tracking
 CREATE TABLE public.user_activities (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
