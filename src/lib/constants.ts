@@ -1,3 +1,4 @@
+
 // gBase contract address on Base network
 export const GBASE_CONTRACT_ADDRESS = "0x301da08f829f9da52ebe7ff1f6d1f0c3e2017d38";
 
