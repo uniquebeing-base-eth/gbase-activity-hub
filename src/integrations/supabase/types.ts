@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      notification_tokens: {
+        Row: {
+          created_at: string
+          fid: number
+          id: string
+          token: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          fid: number
+          id?: string
+          token: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          fid?: number
+          id?: string
+          token?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      user_activities: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          fid: number
+          id: string
+          pfp_url: string | null
+          tx_hash: string
+          username: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          fid: number
+          id?: string
+          pfp_url?: string | null
+          tx_hash: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          fid?: number
+          id?: string
+          pfp_url?: string | null
+          tx_hash?: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

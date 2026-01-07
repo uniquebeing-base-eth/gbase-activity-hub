@@ -14,7 +14,7 @@
     "buttonTitle": "Launch gBase",
     "splashImageUrl": "https://gbase-xi.vercel.app/splash.png",
     "splashBackgroundColor": "#0052FF",
-    "webhookUrl": "https://api.neynar.com/f/app/d72fc6fc-2ae5-4b1d-87ef-ff6be0f6c165/event",
+    "webhookUrl": "https://api.neynar.com/f/app/7f649b6a-375d-4098-afc1-3117024443ea/event",
     "subtitle": "Tap Send and Stay Active",
     "description": "Track your wallet activity on Base network",
     "primaryCategory": "utility",
