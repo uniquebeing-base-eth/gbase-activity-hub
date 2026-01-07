@@ -1,0 +1,37 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjg0OTExNiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGQzRDViRmMyOGJjMjA5OTg4NGEzNmVkNDE2NTY4NzRCQ2RENDYzMTUifQ",
+    "payload": "eyJkb21haW4iOiJnYmFzZS14aS52ZXJjZWwuYXBwIn0",
+    "signature": "OhX56+GENVMetDytjygrKhgwJ24tq2zDdXLZ5sRpSfp4ZjBwSH6wiSM3Wob/88r0YFtFrxqjXS8mLlNDh/16JBw="
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "gBase",
+    "iconUrl": "https://gbase-xi.vercel.app/icon.png",
+    "homeUrl": "https://gbase-xi.vercel.app",
+    "castShareUrl": "https://gbase-xi.vercel.app",
+    "imageUrl": "https://gbase-xi.vercel.app/gbase-preview.png",
+    "buttonTitle": "Launch gBase",
+    "splashImageUrl": "https://gbase-xi.vercel.app/splash.png",
+    "splashBackgroundColor": "#0052FF",
+    "webhookUrl": "https://api.neynar.com/f/app/7f649b6a-375d-4098-afc1-3117024443ea/event",
+    "subtitle": "Tap Send and Stay Active",
+    "description": "Track your wallet activity on Base network",
+    "primaryCategory": "utility",
+    "tags": [
+      "utility",
+      "activity",
+      "blockchain",
+      "base",
+      "wallet"
+    ],
+    "heroImageUrl": "https://gbase-xi.vercel.app/gbase-preview.png",
+    "tagline": "Tap Send and Stay Active",
+    "ogTitle": "gBase",
+    "ogDescription": "Track your wallet activity on Base",
+    "ogImageUrl": "https://gbase-xi.vercel.app/gbase-preview.png"
+  },
+  "baseBuilder": {
+    "ownerAddress": "0x170c5a413136F094421fad8Dd20285b5e05Fff5e"
+  }
+}
