@@ -1,2 +1,13 @@
-
 project_id = "swvuakxkvbjelzhmdoqa"
+
+[functions.record-activity]
+verify_jwt = false
+
+[functions.get-user-wallet]
+verify_jwt = false
+
+[functions.save-notification-token]
+verify_jwt = false
+
+[functions.send-notifications]
+verify_jwt = false
