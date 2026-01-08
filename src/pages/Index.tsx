@@ -8,14 +8,13 @@ import StatRow from "@/components/gbase/StatRow";
 import FAQSection from "@/components/gbase/FAQSection";
 import LearnAboutBase from "@/components/gbase/LearnAboutBase";
 import BottomNav from "@/components/gbase/BottomNav";
-import AddMiniAppPrompt from "@/components/gbase/AddMiniAppPrompt";
 import { useFarcasterUser } from "@/hooks/useFarcasterUser";
 import { useUserStats } from "@/hooks/useUserStats";
-import { useWallet } from "@/hooks/useWallet";
 import { useMiniAppNotifications } from "@/hooks/useMiniAppNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import { GBASE_CONTRACT_ADDRESS, SEND_AMOUNT_WEI, APP_URL } from "@/lib/constants";
 import { sdk } from "@farcaster/miniapp-sdk";
+import { useAccount, useConnect } from "wagmi";
 
 // Helper to calculate wallet strength
 const getWalletStrength = (transactions: number, activeDays: number): string => {
@@ -29,93 +28,106 @@ const getWalletStrength = (transactions: number, activeDays: number): string => 
 
 const Index = () => {
   const { isLoaded, user, composeCast } = useFarcasterUser();
-  const { stats, isLoading: statsLoading, nextEligibleTime, setNextEligibleTime, refreshStats } = useUserStats(user?.fid);
-  const { wallet, isLoading: walletLoading } = useWallet(user?.fid);
-  const { promptAddMiniApp, hasPrompted, isAdded } = useMiniAppNotifications(user?.fid);
-  
+  const {
+    stats,
+    isLoading: statsLoading,
+    nextEligibleTime,
+    setNextEligibleTime,
+    refreshStats,
+  } = useUserStats(user?.fid);
+
+  // Farcaster-native wallet (via wagmi connector)
+  const { address, isConnected } = useAccount();
+  const { connect, connectors, isPending: isConnecting } = useConnect();
+
+  const { promptAddMiniApp, hasPrompted, isAdded } =
+    useMiniAppNotifications(user?.fid);
+
   const [activeTab, setActiveTab] = useState<"home" | "stats">("home");
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [showAddMiniApp, setShowAddMiniApp] = useState(false);
 
-  // Prompt to add mini app after first load
+  // Auto-connect wallet when running inside Farcaster
   useEffect(() => {
-    if (isLoaded && user && !hasPrompted && !isAdded) {
-      // Delay the prompt a bit for better UX
-      const timer = setTimeout(() => {
-        setShowAddMiniApp(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoaded, user, hasPrompted, isAdded]);
+    if (!isLoaded || !user) return;
+    if (isConnected || isConnecting) return;
 
-  const handleAddMiniApp = useCallback(async () => {
-    await promptAddMiniApp();
-    setShowAddMiniApp(false);
-  }, [promptAddMiniApp]);
+    const connector = connectors?.[0];
+    if (!connector) return;
+
+    connect({ connector });
+  }, [isLoaded, user, isConnected, isConnecting, connectors, connect]);
+
+  // Trigger the native Farcaster “add mini app” prompt (no custom modal)
+  useEffect(() => {
+    if (!isLoaded || !user || hasPrompted || isAdded) return;
+
+    const timer = setTimeout(() => {
+      void promptAddMiniApp();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [isLoaded, user, hasPrompted, isAdded, promptAddMiniApp]);
 
   const handleSendGBase = useCallback(async () => {
-    if (!user || !wallet.primaryAddress || isSending || nextEligibleTime) return;
+    if (!user || isSending || nextEligibleTime) return;
 
     setIsSending(true);
 
     try {
-      // Get the ethereum provider from the SDK
       const ethProvider = await sdk.wallet.getEthereumProvider();
-      
+
       if (!ethProvider) {
         console.error("Ethereum provider not available");
-        setIsSending(false);
         return;
       }
 
-      // Request accounts first
-      const accounts = await ethProvider.request({
-        method: "eth_requestAccounts",
-      }) as string[];
+      // Ensure wallet permission is granted and we have an address
+      const accounts =
+        (await ethProvider.request({
+          method: "eth_requestAccounts",
+        })) as string[];
 
       if (!accounts || accounts.length === 0) {
         console.error("No accounts available");
-        setIsSending(false);
         return;
       }
 
-      // Send transaction using the ethereum provider
-      const txHash = await ethProvider.request({
+      const from = accounts[0];
+      const walletAddress = address ?? from;
+
+      const txHash = (await ethProvider.request({
         method: "eth_sendTransaction",
-        params: [{
-          from: accounts[0],
-          to: GBASE_CONTRACT_ADDRESS,
-          value: `0x${BigInt(SEND_AMOUNT_WEI).toString(16)}`, // Convert to hex
-          data: "0x",
-        }],
-      }) as string;
+        params: [
+          {
+            from,
+            to: GBASE_CONTRACT_ADDRESS,
+            value: `0x${BigInt(SEND_AMOUNT_WEI).toString(16)}`,
+            data: "0x",
+          },
+        ],
+      })) as string;
 
       if (txHash) {
-        // Record the activity in the backend
         const { error } = await supabase.functions.invoke("record-activity", {
           body: {
             fid: user.fid,
             username: user.username,
             displayName: user.displayName,
             pfpUrl: user.pfpUrl,
-            walletAddress: wallet.primaryAddress,
-            txHash: txHash,
+            walletAddress,
+            txHash,
           },
         });
 
         if (error) {
           console.error("Failed to record activity:", error);
         } else {
-          // Set cooldown
           const nextTime = new Date();
           nextTime.setHours(nextTime.getHours() + 1);
           setNextEligibleTime(nextTime);
 
-          // Refresh stats
           await refreshStats();
-
-          // Show share popup
           setShowSharePopup(true);
         }
       }
@@ -124,12 +136,15 @@ const Index = () => {
     } finally {
       setIsSending(false);
     }
-  }, [user, wallet.primaryAddress, isSending, nextEligibleTime, setNextEligibleTime, refreshStats]);
+  }, [user, isSending, nextEligibleTime, setNextEligibleTime, refreshStats, address]);
 
-  const handleShareToFarcaster = useCallback((caption: string) => {
-    composeCast(caption, [APP_URL]);
-    setShowSharePopup(false);
-  }, [composeCast]);
+  const handleShareToFarcaster = useCallback(
+    (caption: string) => {
+      composeCast(caption, [APP_URL]);
+      setShowSharePopup(false);
+    },
+    [composeCast]
+  );
 
   const formatDate = (date: Date | null): string => {
     if (!date) return "-";
@@ -151,7 +166,13 @@ const Index = () => {
     });
   };
 
-  const isButtonDisabled = !isLoaded || !user || !wallet.primaryAddress || isSending || !!nextEligibleTime || walletLoading;
+  const isButtonDisabled =
+    !isLoaded ||
+    !user ||
+    !isConnected ||
+    isConnecting ||
+    isSending ||
+    !!nextEligibleTime;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -161,7 +182,9 @@ const Index = () => {
           <main className="flex flex-col items-center justify-center px-6 pt-8">
             {/* Transaction Counter */}
             <div className="text-center mb-12">
-              <p className="text-muted-foreground text-sm mb-1">Base Transactions</p>
+              <p className="text-muted-foreground text-sm mb-1">
+                Base Transactions
+              </p>
               <p className="text-5.5xl font-bold tracking-tight">
                 {statsLoading ? "..." : stats.transactions.toLocaleString()}
               </p>
@@ -169,14 +192,16 @@ const Index = () => {
 
             {/* Send Button */}
             <div className="w-full flex flex-col items-center">
-              <SendButton 
-                onClick={handleSendGBase} 
+              <SendButton
+                onClick={handleSendGBase}
                 disabled={isButtonDisabled}
-                loading={isSending || walletLoading}
+                loading={isSending || isConnecting}
               />
               <CountdownTimer nextEligibleTime={nextEligibleTime} />
-              {!wallet.primaryAddress && isLoaded && user && !walletLoading && (
-                <p className="text-destructive text-sm mt-2">No wallet connected</p>
+              {!isConnected && isLoaded && user && !isConnecting && (
+                <p className="text-destructive text-sm mt-2">
+                  No wallet connected
+                </p>
               )}
             </div>
 
@@ -192,15 +217,28 @@ const Index = () => {
           <main className="px-4 pb-6">
             {/* Stats Card */}
             <div className="bg-card rounded-xl border border-border p-4 mb-4">
-              <StatRow label="Base Transactions" value={statsLoading ? "..." : stats.transactions} />
-              <StatRow label="Active Days" value={statsLoading ? "..." : stats.activeDays} />
+              <StatRow
+                label="Base Transactions"
+                value={statsLoading ? "..." : stats.transactions}
+              />
+              <StatRow
+                label="Active Days"
+                value={statsLoading ? "..." : stats.activeDays}
+              />
               <StatRow
                 label="Wallet Strength"
-                value={statsLoading ? "..." : getWalletStrength(stats.transactions, stats.activeDays)}
+                value={
+                  statsLoading
+                    ? "..."
+                    : getWalletStrength(stats.transactions, stats.activeDays)
+                }
                 highlight
               />
               <StatRow label="First Activity" value={formatDate(stats.firstActivity)} />
-              <StatRow label="Last Activity" value={formatDateTime(stats.lastActivity)} />
+              <StatRow
+                label="Last Activity"
+                value={formatDateTime(stats.lastActivity)}
+              />
             </div>
 
             {/* Note */}
@@ -226,14 +264,9 @@ const Index = () => {
         transactionCount={stats.transactions}
         onShareToFarcaster={handleShareToFarcaster}
       />
-
-      <AddMiniAppPrompt
-        isOpen={showAddMiniApp}
-        onAdd={handleAddMiniApp}
-        onDismiss={() => setShowAddMiniApp(false)}
-      />
     </div>
   );
 };
 
 export default Index;
+
